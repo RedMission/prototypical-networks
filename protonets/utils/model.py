@@ -3,7 +3,7 @@ from tqdm import tqdm
 from protonets.utils import filter_opt
 from protonets.models import get_model
 
-def load(opt):
+def load(opt): # 传入name参数 加载模型
     model_opt = filter_opt(opt, 'model')
     model_name = model_opt['model_name']
 

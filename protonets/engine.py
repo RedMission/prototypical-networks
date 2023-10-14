@@ -12,7 +12,7 @@ class Engine(object):
     def train(self, **kwargs):
         state = {
             'model': kwargs['model'],
-            'loader': kwargs['loader'],
+            'loader': kwargs['loader'], # 数据
             'optim_method': kwargs['optim_method'],
             'optim_config': kwargs['optim_config'],
             'max_epoch': kwargs['max_epoch'],
@@ -33,7 +33,7 @@ class Engine(object):
             state['epoch_size'] = len(state['loader'])
 
             for sample in tqdm(state['loader'], desc="Epoch {:d} train".format(state['epoch'] + 1)):
-                state['sample'] = sample
+                state['sample'] = sample # 喂入数据（有三个key的字典）
                 self.hooks['on_sample'](state)
 
                 state['optimizer'].zero_grad()
@@ -49,7 +49,7 @@ class Engine(object):
                 state['batch'] += 1
                 self.hooks['on_update'](state)
 
-            state['epoch'] += 1
+            state['epoch'] += 1 # 更新epoch 作为步长
             state['batch'] = 0
             self.hooks['on_end_epoch'](state)
 

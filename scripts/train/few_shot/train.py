@@ -10,11 +10,12 @@ import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler 
 import torchvision
 import torchnet as tnt
+# import torchtnt as tnt
 
 from protonets.engine import Engine
 
-import protonets.utils.data as data_utils
-import protonets.utils.model as model_utils
+import protonets.utils.data as data_utils # 加载数据的方法
+import protonets.utils.model as model_utils # 模型用到的类
 import protonets.utils.log as log_utils
 
 def main(opt):
@@ -36,6 +37,7 @@ def main(opt):
     if opt['data.cuda']:
         torch.cuda.manual_seed(1234)
 
+    # 加载数据
     if opt['data.trainval']:
         data = data_utils.load(opt, ['trainval'])
         train_loader = data['trainval']
@@ -45,6 +47,19 @@ def main(opt):
         train_loader = data['train']
         val_loader = data['val']
 
+    # 分析一下train_loader
+    '''
+    三项：way项的class（标签）；[way,data.shot,c,h,w] [way,data.query,c,h,w]
+    '''
+    # for data in enumerate(train_loader):
+    #     a,b = data
+    #     cla = b['class']
+    #     xs = b['xs']
+    #     xq = b['xq']
+    #     print(xs[0])
+    #     print(xq[0])
+
+    # 初始化网络对象
     model = model_utils.load(opt)
 
     if opt['data.cuda']:
@@ -121,8 +136,8 @@ def main(opt):
     engine.hooks['on_end_epoch'] = partial(on_end_epoch, { })
 
     engine.train(
-        model = model,
-        loader = train_loader,
+        model = model, # 传入model
+        loader = train_loader, # 放入数据
         optim_method = getattr(optim, opt['train.optim_method']),
         optim_config = { 'lr': opt['train.learning_rate'],
                          'weight_decay': opt['train.weight_decay'] },

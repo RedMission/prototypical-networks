@@ -15,7 +15,7 @@ parser.add_argument('--data.way', type=int, default=60, metavar='WAY',
                     help="number of classes per episode (default: 60)")
 parser.add_argument('--data.shot', type=int, default=5, metavar='SHOT',
                     help="number of support examples per class (default: 5)")
-parser.add_argument('--data.query', type=int, default=5, metavar='QUERY',
+parser.add_argument('--data.query', type=int, default=2, metavar='QUERY',
                     help="number of query examples per class (default: 5)")
 parser.add_argument('--data.test_way', type=int, default=5, metavar='TESTWAY',
                     help="number of classes per episode in test. 0 means same as data.way (default: 5)")
@@ -29,7 +29,7 @@ parser.add_argument('--data.test_episodes', type=int, default=100, metavar='NTES
                     help="number of test episodes per epoch (default: 100)")
 parser.add_argument('--data.trainval', action='store_true', help="run in train+validation mode (default: False)")
 parser.add_argument('--data.sequential', action='store_true', help="use sequential sampler instead of episodic (default: False)")
-parser.add_argument('--data.cuda', action='store_true', help="run in CUDA mode (default: False)")
+parser.add_argument('--data.cuda', action='store_true',default=True, help="run in CUDA mode (default: True)")
 
 # model args
 default_model_name = 'protonet_conv'

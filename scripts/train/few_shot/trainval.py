@@ -24,5 +24,4 @@ def main(opt):
         'data.trainval': True,
         'train.epochs': best_epoch + model_opt['train.patience'],
     })
-
-    subprocess.call(['python', os.path.join(os.getcwd(), 'scripts/train/few_shot/run_train.py')] + format_opts(model_opt))
+    subprocess.call(['python', os.path.join(os.getcwd(), 'run_train.py')] + format_opts(model_opt))

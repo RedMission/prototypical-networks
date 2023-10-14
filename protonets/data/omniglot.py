@@ -39,7 +39,8 @@ def load_class_images(d):
     if d['class'] not in OMNIGLOT_CACHE:
         alphabet, character, rot = d['class'].split('/')
         image_dir = os.path.join(OMNIGLOT_DATA_DIR, 'data', alphabet, character)
-
+        # print("++++++++++")
+        # print(image_dir)
         class_images = sorted(glob.glob(os.path.join(image_dir, '*.png')))
         if len(class_images) == 0:
             raise Exception("No images found for omniglot class {} at {}. Did you run download_omniglot.sh first?".format(d['class'], image_dir))
@@ -79,11 +80,13 @@ def extract_episode(n_support, n_query, d):
         'xq': xq
     }
 
+# 加载该数据集的方法 splits ['train', 'val']
 def load(opt, splits):
     split_dir = os.path.join(OMNIGLOT_DATA_DIR, 'splits', opt['data.split'])
 
-    ret = { }
+    ret = {}
     for split in splits:
+        # 指定way shot query episodes数量
         if split in ['val', 'test'] and opt['data.test_way'] != 0:
             n_way = opt['data.test_way']
         else:
@@ -112,6 +115,7 @@ def load(opt, splits):
 
         transforms = compose(transforms)
 
+        # 获取要使用的类别名
         class_names = []
         with open(os.path.join(split_dir, "{:s}.txt".format(split)), 'r') as f:
             for class_name in f.readlines():
