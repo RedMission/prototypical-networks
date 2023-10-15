@@ -21,7 +21,7 @@ class Protonet(nn.Module):
         
         self.encoder = encoder
 
-    def loss(self, sample):
+    def loss(self, sample, is_cuda):
         '''
 
         :param sample: sample(含(sample['xs']、sample['xq'])
@@ -39,7 +39,9 @@ class Protonet(nn.Module):
         target_inds = torch.arange(0, n_class).view(n_class, 1, 1).expand(n_class, n_query, 1).long()
         target_inds = Variable(target_inds, requires_grad=False)
 
-        if xq.is_cuda:
+        if is_cuda:
+            xs = xs.cuda()
+            xq = xq.cuda()
             target_inds = target_inds.cuda()
 
         x = torch.cat([xs.view(n_class * n_support, *xs.size()[2:]),

@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from functools import partial
 from tqdm import tqdm
 
@@ -11,7 +12,7 @@ import torch.optim.lr_scheduler as lr_scheduler
 import torchvision
 import torchnet as tnt
 # import torchtnt as tnt
-
+from protonets.data.palmprint import palmdataloader
 from protonets.engine import Engine
 
 import protonets.utils.data as data_utils # 加载数据的方法
@@ -37,21 +38,32 @@ def main(opt):
     if opt['data.cuda']:
         torch.cuda.manual_seed(1234)
 
-    # 加载数据
-    if opt['data.trainval']:
-        data = data_utils.load(opt, ['trainval'])
-        train_loader = data['trainval']
-        val_loader = None
-    else:
-        data = data_utils.load(opt, ['train', 'val'])
-        train_loader = data['train']
-        val_loader = data['val']
+    # 加载字符数据
+    # if opt['data.trainval']:
+    #     data = data_utils.load(opt, ['trainval'])
+    #     train_loader = data['trainval']
+    #     val_loader = None
+    # else:
+    #     data = data_utils.load(opt, ['train', 'val'])
+    #     train_loader = data['train']
+    #     val_loader = data['val']
+    #
 
+    # 创建掌纹数据加载器
+    raw_train_data = np.load(opt['traindata_path'],
+                       allow_pickle=True).copy()
+    raw_val_data = np.load(opt['valdata_path'],
+                             allow_pickle=True).copy()
+
+    train_loader = palmdataloader(raw_train_data, opt['data.way'], opt['data.shot'],
+                                  opt['data.query'], opt['data.train_episodes'], True)
+    val_loader = palmdataloader(raw_val_data, opt['data.test_way'], opt['data.test_shot'],
+                                  opt['data.test_query'], opt['data.train_episodes'], True)
     # 分析一下train_loader
     '''
     三项：way项的class（标签）；[way,data.shot,c,h,w] [way,data.query,c,h,w]
     '''
-    # for data in enumerate(train_loader):
+    # for data in enumerate(val_loader):
     #     a,b = data
     #     cla = b['class']
     #     xs = b['xs']
@@ -96,12 +108,13 @@ def main(opt):
                 hook_state['best_loss'] = np.inf
             if 'wait' not in hook_state:
                 hook_state['wait'] = 0
-
         if val_loader is not None:
             model_utils.evaluate(state['model'],
                                  val_loader,
                                  meters['val'],
-                                 desc="Epoch {:d} valid".format(state['epoch']))
+                                 is_cuda = opt['data.cuda'],
+                                 desc="Epoch {:d} valid".format(state['epoch'], ),
+                                 )
 
         meter_vals = log_utils.extract_meter_values(meters)
         print("Epoch {:02d}: {:s}".format(state['epoch'], log_utils.render_meter_values(meter_vals)))
@@ -116,7 +129,8 @@ def main(opt):
                 print("==> best model (loss = {:0.6f}), saving model...".format(hook_state['best_loss']))
 
                 state['model'].cpu()
-                torch.save(state['model'], os.path.join(opt['log.exp_dir'], 'best_model.pt'))
+                torch.save(state['model'], os.path.join(opt['log.exp_dir'],
+                                                         time.strftime("%Y%m%d-%H%M",time.localtime())+'best_model.pt'))
                 if opt['data.cuda']:
                     state['model'].cuda()
 
@@ -129,17 +143,19 @@ def main(opt):
                     state['stop'] = True
         else:
             state['model'].cpu()
-            torch.save(state['model'], os.path.join(opt['log.exp_dir'], 'best_model.pt'))
+            torch.save(state['model'], os.path.join(opt['log.exp_dir'],
+                                                    time.strftime("%Y%m%d-%H%M",time.localtime())+'best_model.pt'))
             if opt['data.cuda']:
                 state['model'].cuda()
 
     engine.hooks['on_end_epoch'] = partial(on_end_epoch, { })
-
     engine.train(
         model = model, # 传入model
         loader = train_loader, # 放入数据
         optim_method = getattr(optim, opt['train.optim_method']),
         optim_config = { 'lr': opt['train.learning_rate'],
                          'weight_decay': opt['train.weight_decay'] },
-        max_epoch = opt['train.epochs']
+        max_epoch = opt['train.epochs'],
+        device = opt['data.cuda']
+
     )

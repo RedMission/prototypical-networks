@@ -19,7 +19,8 @@ class Engine(object):
             'epoch': 0, # epochs done so far
             't': 0, # samples seen so far
             'batch': 0, # samples seen in current epoch
-            'stop': False
+            'stop': False,
+            'is_cuda':kwargs['device']
         }
 
         state['optimizer'] = state['optim_method'](state['model'].parameters(), **state['optim_config'])
@@ -33,11 +34,12 @@ class Engine(object):
             state['epoch_size'] = len(state['loader'])
 
             for sample in tqdm(state['loader'], desc="Epoch {:d} train".format(state['epoch'] + 1)):
+
                 state['sample'] = sample # 喂入数据（有三个key的字典）
                 self.hooks['on_sample'](state)
 
                 state['optimizer'].zero_grad()
-                loss, state['output'] = state['model'].loss(state['sample'])
+                loss, state['output'] = state['model'].loss(state['sample'],state['is_cuda'])
                 self.hooks['on_forward'](state)
 
                 loss.backward()
