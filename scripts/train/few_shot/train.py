@@ -50,9 +50,9 @@ def main(opt):
     #
 
     # 创建掌纹数据加载器
-    raw_train_data = np.load(opt['traindata_path'],
+    raw_train_data = np.load(opt['data.traindata_path'],
                        allow_pickle=True).copy()
-    raw_val_data = np.load(opt['valdata_path'],
+    raw_val_data = np.load(opt['data.valdata_path'],
                              allow_pickle=True).copy()
 
     train_loader = palmdataloader(raw_train_data, opt['data.way'], opt['data.shot'],
@@ -129,8 +129,9 @@ def main(opt):
                 print("==> best model (loss = {:0.6f}), saving model...".format(hook_state['best_loss']))
 
                 state['model'].cpu()
-                torch.save(state['model'], os.path.join(opt['log.exp_dir'],
-                                                         time.strftime("%Y%m%d-%H%M",time.localtime())+'best_model.pt'))
+                torch.save(state['model'],
+                           os.path.join(opt['log.exp_dir'],
+                                        time.strftime("%Y%m%d-%H%M",time.localtime())+'best_model.pt'))
                 if opt['data.cuda']:
                     state['model'].cuda()
 
@@ -144,7 +145,7 @@ def main(opt):
         else:
             state['model'].cpu()
             torch.save(state['model'], os.path.join(opt['log.exp_dir'],
-                                                    time.strftime("%Y%m%d-%H%M",time.localtime())+'best_model.pt'))
+                                                    time.strftime("%Y%m%d-%H%M",time.localtime())+'zf_best_model.pt'))
             if opt['data.cuda']:
                 state['model'].cuda()
 

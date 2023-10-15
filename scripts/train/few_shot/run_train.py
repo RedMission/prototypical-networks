@@ -8,9 +8,9 @@ parser = argparse.ArgumentParser(description='Train prototypical networks')
 default_dataset = 'omniglot'
 train_dataset ="F:\jupyter_notebook\DAGAN\datasets\IITDdata_left_PSA+SC+MC+W_10.npy"
 val_dataset ="F:\jupyter_notebook\DAGAN\datasets\IITDdata_right.npy"
-parser.add_argument('--traindata_path', type=str, default=train_dataset, metavar='DS',
+parser.add_argument('--data.traindata_path', type=str, default=train_dataset, metavar='DS',
                     help="train data set path (default: {:s})".format(train_dataset))
-parser.add_argument('--valdata_path', type=str, default=val_dataset, metavar='DS',
+parser.add_argument('--data.valdata_path', type=str, default=val_dataset, metavar='DS',
                     help="val data set path (default: {:s})".format(val_dataset))
 parser.add_argument('--data.dataset', type=str, default=default_dataset, metavar='DS',
                     help="data set name (default: {:s})".format(default_dataset))

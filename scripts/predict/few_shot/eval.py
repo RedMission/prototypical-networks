@@ -15,7 +15,7 @@ def main(opt):
     model = torch.load(opt['model.model_path'])
     model.eval()
 
-    # load opts
+    # load opts 加载历史
     model_opt_file = os.path.join(os.path.dirname(opt['model.model_path']), 'opt.json')
     with open(model_opt_file, 'r') as f:
         model_opt = json.load(f)
@@ -57,7 +57,7 @@ def main(opt):
 
     meters = { field: tnt.meter.AverageValueMeter() for field in model_opt['log.fields'] }
 
-    model_utils.evaluate(model, data['test'], meters, desc="test")
+    model_utils.evaluate(model, data['test'], meters, desc="test",is_cuda=data_opt['data.cuda'])
 
     for field,meter in meters.items():
         mean, std = meter.value()
